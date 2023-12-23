@@ -1,4 +1,5 @@
 import express from 'express';
+import expressStaticGzip from 'express-static-gzip';
 import helmet from 'helmet';
 import path from 'path';
 import fs from 'fs';
@@ -27,7 +28,7 @@ if (process.env.NODE_ENV === 'production') {
     app.use(helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", 'https://your-production-domain.com'],
+            scriptSrc: ["'self'", 'http://localhost:3000'],
         },
     }));
 
@@ -97,8 +98,18 @@ async function compressImages() {
     }
 }
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Express-static-gzip middleware'i ekleyin ve yapılandırın
+app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
+    enableBrotli: true,  // Brotli sıkıştırma kullan
+    orderPreference: ['br'],  // Tarayıcının Brotli'yi tercih etmesini sağla
+    setHeaders: (res, path) => {
+        // Önbellek başlıklarını ayarla
+        res.setHeader('Cache-Control', 'public, max-age=31536000');  // 1 yıl (saniye cinsinden)
+        res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());  // 1 yıl sonra sona erer
+        res.setHeader('Pragma', 'public');
+        res.setHeader('Vary', 'Accept-Encoding');  // Tarayıcı sıkıştırma tercihini dikkate al
+    },
+}));
 
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {
