@@ -1,5 +1,6 @@
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
+import 'dotenv/config'
 import helmet from 'helmet';
 import path from 'path';
 import fs from 'fs';
