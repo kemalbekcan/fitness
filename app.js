@@ -4,81 +4,120 @@ import path from 'path';
 import fs from 'fs';
 import imagemin from 'imagemin';
 import imageminMozjpeg from 'imagemin-mozjpeg';
-import compression from 'compression'
+import compression from 'compression';
 import CleanCSS from 'clean-css';
+import UglifyJS from 'uglify-js';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-
+import morgan from 'morgan'; // Morgan ekleyin
+import router from './routes/routes.js';
 
 const app = express();
-
-// Helmet middleware'i ekleyin ve CSP özelliklerini özelleştirin
-app.use(helmet.contentSecurityPolicy({
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", 'trusted-scripts.com'],
-    },
-  }));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CSS sıkıştırma işlemi
+// NODE_ENV kontrolü
+if (process.env.NODE_ENV === 'production') {
+    console.log('Environment is production!');
+    // Production ortamında özel işlemler veya yapılandırmalar
+    app.use(compression());
+
+    // Apply Helmet middleware with customized CSP for production
+    app.use(helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", 'https://your-production-domain.com'],
+        },
+    }));
+} else {
+    console.log('Environment is not production!');
+    // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
+    // Morgan'ı kullanarak günlük bilgisi almak için
+    app.use(morgan('dev'));
+}
+
+// Define file paths
 const cssPath = path.join(__dirname, 'public', 'styles', 'style.css');
 const minifiedCSSPath = path.join(__dirname, 'public', 'styles', 'style.min.css');
-
-const cssContent = fs.readFileSync(cssPath, 'utf8');
-const minifiedCSSContent = new CleanCSS().minify(cssContent).styles;
-
-fs.writeFileSync(minifiedCSSPath, minifiedCSSContent);
-
-
-// Resim sıkıştırma işlemi
+const jsPath = path.join(__dirname, 'public', 'scripts', 'script.js');
+const minifiedJSPath = path.join(__dirname, 'public', 'scripts', 'script.min.js');
 const inputImagePath = path.join(__dirname, '/public', 'images');
 const outputImagePath = path.join(__dirname, '/public', 'compressed-images');
 
-imagemin([`${inputImagePath}/*.{jpg,png}`], {
-    destination: outputImagePath,
-    plugins: [imageminMozjpeg({ quality: 80 })],
-}).then(() => {
+// Function to minify CSS
+function minifyCSS() {
+    const cssContent = fs.readFileSync(cssPath, 'utf8');
+    const minifiedCSSContent = new CleanCSS().minify(cssContent).styles;
+    fs.writeFileSync(minifiedCSSPath, minifiedCSSContent);
+}
+
+// Function to minify JS
+function minifyJS() {
+    const jsContent = fs.readFileSync(jsPath, 'utf8');
+    const minifyOptions = {}; // Customize options if needed
+    const minifiedJSContent = UglifyJS.minify(jsContent, minifyOptions).code;
+    fs.writeFileSync(minifiedJSPath, minifiedJSContent);
+}
+
+// Function to compress images
+async function compressImages() {
+    await imagemin([`${inputImagePath}/*.{jpg,png}`], {
+        destination: outputImagePath,
+        plugins: [imageminMozjpeg({ quality: 80 })],
+    });
     console.log('Images compressed successfully!');
-});
+}
 
-// Gzip sıkıştırma middleware'ini ekleyin
-app.use(compression());
-
+// Serve static files
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(cors());
 app.use(express.json());
-
 app.set('view engine', 'ejs');
 
-// index page 
-app.get('/', function (req, res) {
+// Use the router
+app.use(router);
+
+// Define routes
+app.get('/', (req, res) => {
     const head = {
         title: 'Anasayfa',
         description: 'Anasayfa açıklaması',
         keywords: 'Anasayfa anahtar kelimeler',
-        author: 'Anasayfa yazarı'
+        author: 'Anasayfa yazarı',
     };
 
-    var mascots = [
-        { name: 'Sammy', organization: "DigitalOcean", birth_year: 2012 },
-        { name: 'Tux', organization: "Linux", birth_year: 1996 },
-        { name: 'Moby Dock', organization: "Docker", birth_year: 2013 }
+    const mascots = [
+        { name: 'Sammy', organization: 'DigitalOcean', birth_year: 2012 },
+        { name: 'Tux', organization: 'Linux', birth_year: 1996 },
+        { name: 'Moby Dock', organization: 'Docker', birth_year: 2013 },
     ];
-    var tagline = "No programming concept is complete without a cute animal mascot.";
+    const tagline = 'No programming concept is complete without a cute animal mascot.';
 
     res.render('pages/index', {
         head,
-        mascots: mascots,
-        tagline: tagline
+        mascots,
+        tagline,
     });
 });
 
-// about page
-app.get('/about', function (req, res) {
+app.get('/about', (req, res) => {
     res.render('pages/about');
 });
 
-app.listen(3000, () => console.log('http://localhost:3000 🚀'));
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT} 🚀`);
+});
+
+// Call functions conditionally based on environment
+// if (process.env.NODE_ENV === 'production') {
+//     minifyCSS();
+//     minifyJS();
+//     compressImages();
+// }
+
+minifyCSS();
+minifyJS();
+compressImages();
