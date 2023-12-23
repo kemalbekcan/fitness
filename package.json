@@ -6,19 +6,26 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon app.js & npm run scss",
+    "build-css": "cleancss -o public/styles/style.min.css public/styles/style.css",
     "scss": "sass --no-source-map --watch views/scss/main.scss public/styles/style.css",
+    "build-images": "imagemin --out-dir=public/compressed-images public/images/*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "imagemin-mozjpeg": "^10.0.0",
     "sass": "^1.69.5"
   },
   "devDependencies": {
+    "clean-css": "^5.3.3",
+    "imagemin": "^8.0.1",
     "nodemon": "^3.0.2"
   }
 }
