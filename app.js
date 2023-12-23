@@ -46,12 +46,12 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Define file paths
-const cssPath = path.join(__dirname, 'public', 'styles', 'style.css');
+const cssPath = path.join(__dirname, 'views', 'assets', 'styles', 'style.css');
 const minifiedCSSPath = path.join(__dirname, 'public', 'styles', 'style.min.css');
-const jsPath = path.join(__dirname, 'public', 'scripts', 'script.js');
+const jsPath = path.join(__dirname, 'views', 'assets', 'scripts', 'script.js');
 const minifiedJSPath = path.join(__dirname, 'public', 'scripts', 'script.min.js');
-const inputImagePath = path.join(__dirname, '/public', 'images');
-const outputImagePath = path.join(__dirname, '/public', 'compressed-images');
+const inputImagePath = path.join(__dirname, 'views', 'assets', 'images');
+const outputImagePath = path.join(__dirname, 'public', 'images');
 
 // Function to minify CSS
 async function minifyCSS() {

@@ -7,7 +7,7 @@
   "scripts": {
     "production": "NODE_ENV=production nodemon app.js",
     "dev": "NODE_ENV=development nodemon app.js & npm run scss",
-    "scss": "sass --no-source-map --watch views/scss/main.scss public/styles/style.css",
+    "scss": "sass --no-source-map --watch views/scss/main.scss views/assets/styles/style.css",
     "build-css": "cleancss -o public/styles/style.min.css public/styles/style.css",
     "build-js": "uglifyjs public/scripts/script.js -o public/scripts/script.min.js",
     "build-images": "imagemin --out-dir=public/compressed-images public/images/*",
