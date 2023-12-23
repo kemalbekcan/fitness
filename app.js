@@ -30,6 +30,12 @@ if (process.env.NODE_ENV === 'production') {
             scriptSrc: ["'self'", 'https://your-production-domain.com'],
         },
     }));
+
+    // CSS ve JS'yi minify et
+    // await minifyCSS();
+    // await minifyJS();
+    // Resimleri sıkıştır
+    // await compressImages();
 } else {
     console.log('Environment is not production!');
     // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
@@ -46,31 +52,57 @@ const inputImagePath = path.join(__dirname, '/public', 'images');
 const outputImagePath = path.join(__dirname, '/public', 'compressed-images');
 
 // Function to minify CSS
-function minifyCSS() {
-    const cssContent = fs.readFileSync(cssPath, 'utf8');
-    const minifiedCSSContent = new CleanCSS().minify(cssContent).styles;
-    fs.writeFileSync(minifiedCSSPath, minifiedCSSContent);
+async function minifyCSS() {
+    return new Promise((resolve, reject) => {
+        try {
+            const cssContent = fs.readFileSync(cssPath, 'utf8');
+            const minifiedCSSContent = new CleanCSS().minify(cssContent).styles;
+            fs.writeFileSync(minifiedCSSPath, minifiedCSSContent);
+            console.log('CSS minified successfully!');
+            resolve();
+        } catch (error) {
+            console.error('Error minifying CSS:', error);
+            reject(error);
+        }
+    });
 }
 
 // Function to minify JS
-function minifyJS() {
-    const jsContent = fs.readFileSync(jsPath, 'utf8');
-    const minifyOptions = {}; // Customize options if needed
-    const minifiedJSContent = UglifyJS.minify(jsContent, minifyOptions).code;
-    fs.writeFileSync(minifiedJSPath, minifiedJSContent);
+async function minifyJS() {
+    return new Promise((resolve, reject) => {
+        try {
+            const jsContent = fs.readFileSync(jsPath, 'utf8');
+            const minifyOptions = {}; // Customize options if needed
+            const minifiedJSContent = UglifyJS.minify(jsContent, minifyOptions).code;
+            fs.writeFileSync(minifiedJSPath, minifiedJSContent);
+            console.log('JS minified successfully!');
+            resolve();
+        } catch (error) {
+            console.error('Error minifying JS:', error);
+            reject(error);
+        }
+    });
 }
 
 // Function to compress images
 async function compressImages() {
-    await imagemin([`${inputImagePath}/*.{jpg,png}`], {
-        destination: outputImagePath,
-        plugins: [imageminMozjpeg({ quality: 80 })],
-    });
-    console.log('Images compressed successfully!');
+    try {
+        await imagemin([`${inputImagePath}/*.{jpg,png}`], {
+            destination: outputImagePath,
+            plugins: [imageminMozjpeg({ quality: 80 })],
+        });
+        console.log('Images compressed successfully!');
+    } catch (error) {
+        console.error('Error compressing images:', error);
+    }
 }
 
 // Serve static files
-app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// EJS şablonlarını bulunduran dizin
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(cors());
 app.use(express.json());
 app.set('view engine', 'ejs');
