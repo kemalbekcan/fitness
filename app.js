@@ -11,7 +11,8 @@ import CleanCSS from 'clean-css';
 import UglifyJS from 'uglify-js';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import morgan from 'morgan'; // Morgan ekleyin
+import morgan from 'morgan';
+import chalk from 'chalk';
 import router from './routes/routes.js';
 
 const app = express();
@@ -39,7 +40,7 @@ if (process.env.NODE_ENV === 'production') {
     // Resimleri sıkıştır
     // await compressImages();
 } else {
-    console.log('Environment is not production!');
+    console.log(chalk.yellow('Environment is production!'));
     // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
     // Morgan'ı kullanarak günlük bilgisi almak için
     app.use(morgan('dev'));
@@ -60,10 +61,10 @@ async function minifyCSS() {
             const cssContent = fs.readFileSync(cssPath, 'utf8');
             const minifiedCSSContent = new CleanCSS().minify(cssContent).styles;
             fs.writeFileSync(minifiedCSSPath, minifiedCSSContent);
-            console.log('CSS minified successfully!');
+            console.log(chalk.green('CSS minified successfully!'));
             resolve();
         } catch (error) {
-            console.error('Error minifying CSS:', error);
+            console.log(chalk.red('Error minifying CSS:', error));
             reject(error);
         }
     });
@@ -77,10 +78,10 @@ async function minifyJS() {
             const minifyOptions = {}; // Customize options if needed
             const minifiedJSContent = UglifyJS.minify(jsContent, minifyOptions).code;
             fs.writeFileSync(minifiedJSPath, minifiedJSContent);
-            console.log('JS minified successfully!');
+            console.log(chalk.green('JS minified successfully!'));
             resolve();
         } catch (error) {
-            console.error('Error minifying JS:', error);
+            console.log(chalk.red('Error minifying JS:', error));
             reject(error);
         }
     });
@@ -93,9 +94,9 @@ async function compressImages() {
             destination: outputImagePath,
             plugins: [imageminMozjpeg({ quality: 80 })],
         });
-        console.log('Images compressed successfully!');
+        console.log(chalk.green('Images compressed successfully!'));
     } catch (error) {
-        console.error('Error compressing images:', error);
+        console.log(chalk.red('Error compressing images:', error));
     }
 }
 
@@ -158,7 +159,7 @@ app.get('/about', (req, res) => {
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT} 🚀`);
+    console.log(chalk.blue(`Server is running on http://localhost:${PORT} 🚀`));
 });
 
 // Call functions conditionally based on environment
