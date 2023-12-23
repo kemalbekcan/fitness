@@ -114,7 +114,7 @@ app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
 // Serve robots.txt
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
-    res.send('User-agent: *\nDisallow: /');
+    res.send('User-agent: *\nDisallow: ');
 });
 
 // EJS şablonlarını bulunduran dizin
