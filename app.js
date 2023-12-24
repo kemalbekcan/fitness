@@ -38,6 +38,7 @@ if (process.env.NODE_ENV === 'production') {
     // Resimleri sıkıştır
     // await compressImages();
 } else {
+    // app.use(compression());
     console.log(chalk.yellow('Environment is production!'));
     // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
     // Morgan'ı kullanarak günlük bilgisi almak için
