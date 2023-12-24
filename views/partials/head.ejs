@@ -1,32 +1,39 @@
 <meta charset="UTF-8">
-
-<!-- set viewport for mobile -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title><%= head.title %></title>
+<title>
+    <%= head.title %>
+</title>
 <meta name="title" content="<%= head.title %>">
 <meta name="author" content="<%= head.author %>">
 <meta name="og:title" content="<%= head.title %>">
 <meta name="og:description" content="<%= head.description %>">
 <meta name="description" content="<%= head.description %>">
 <meta name="keywords" content="<%= head.keywords %>">
-
-<!-- favicon -->
 <link rel="icon" href="/public/images/favicon.ico" type="image/x-icon">
 
-<!-- twitter -->
+<!-- Lazy loading CSS -->
+<link id="lazy-css" rel="stylesheet" href="/public/styles/style.min.css" media="print" onload="this.media='all'">
+<noscript>
+    <link rel="stylesheet" href="/public/styles/style.min.css">
+</noscript>
 
-<!-- facebook -->
+<!-- Twitter -->
+<!-- Facebook -->
+<!-- Google -->
 
-<!-- google -->
-
-<!-- css -->
 <link rel="canonical" href="http://localhost:3000/">
-<link rel="stylesheet" href="/public/styles/style.min.css" media="print" onload="this.media='all'">>
-
 
 <style>
     body {
         padding-top: 50px;
     }
 </style>
+
+<!-- JavaScript ile lazy loading -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var lazyStyle = document.getElementById('lazy-css');
+        lazyStyle.removeAttribute('onload');
+        lazyStyle.media = 'all';
+    });
+</script>
