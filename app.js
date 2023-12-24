@@ -1,5 +1,5 @@
 import express from 'express';
-import ejs from 'ejs';
+import { exec } from 'child_process';
 import expressStaticGzip from 'express-static-gzip';
 import 'dotenv/config'
 import helmet from 'helmet';
@@ -45,6 +45,15 @@ if (process.env.NODE_ENV === 'production') {
     // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
     // Morgan'ı kullanarak günlük bilgisi almak için
     app.use(morgan('dev'));
+
+    // SCSS derleme ve Autoprefixer'ı uygulama için script'i çalıştır
+    exec('npm run dev', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error}`);
+            return;
+        }
+        console.log(`SCSS and Autoprefixer output: ${stdout}`);
+    });
 }
 
 // Define file paths
@@ -54,39 +63,6 @@ const jsPath = path.join(__dirname, 'views', 'assets', 'scripts', 'script.js');
 const minifiedJSPath = path.join(__dirname, 'public', 'scripts', 'script.min.js');
 const inputImagePath = path.join(__dirname, 'views', 'assets', 'images');
 const outputImagePath = path.join(__dirname, 'public', 'images');
-
-// Function to minify CSS
-async function minifyCSS() {
-    return new Promise((resolve, reject) => {
-        try {
-            const cssContent = fs.readFileSync(cssPath, 'utf8');
-            const minifiedCSSContent = new CleanCSS().minify(cssContent).styles;
-            fs.writeFileSync(minifiedCSSPath, minifiedCSSContent);
-            console.log(chalk.green('CSS minified successfully!'));
-            resolve();
-        } catch (error) {
-            console.log(chalk.red('Error minifying CSS:', error));
-            reject(error);
-        }
-    });
-}
-
-// Function to minify JS
-async function minifyJS() {
-    return new Promise((resolve, reject) => {
-        try {
-            const jsContent = fs.readFileSync(jsPath, 'utf8');
-            const minifyOptions = {}; // Customize options if needed
-            const minifiedJSContent = UglifyJS.minify(jsContent, minifyOptions).code;
-            fs.writeFileSync(minifiedJSPath, minifiedJSContent);
-            console.log(chalk.green('JS minified successfully!'));
-            resolve();
-        } catch (error) {
-            console.log(chalk.red('Error minifying JS:', error));
-            reject(error);
-        }
-    });
-}
 
 // Function to compress images
 async function compressImages() {
@@ -161,6 +137,8 @@ app.get('/about', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(chalk.blue(`Server is running on http://localhost:${PORT} 🚀`));
+
+    compressImages();
 });
 
 // Call functions conditionally based on environment
@@ -169,7 +147,5 @@ app.listen(PORT, () => {
 //     minifyJS();
 //     compressImages();
 // }
+  
 
-minifyCSS();
-minifyJS();
-compressImages();

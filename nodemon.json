@@ -1,6 +1,0 @@
-{
-    "watch": ["app.js"],
-    "ignore": ["node_modules", ".git"],
-    "ext": "js json ejs"
-  }
-  
