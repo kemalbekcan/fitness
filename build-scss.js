@@ -3,6 +3,7 @@
 import postcss from 'postcss';
 import autoprefixer from 'autoprefixer';
 import fs from 'fs';
+import chalk from 'chalk';
 import * as sass from 'sass';
 import CleanCSS from 'clean-css';
 import UglifyJS from 'uglify-js';
