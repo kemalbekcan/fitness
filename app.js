@@ -4,12 +4,9 @@ import expressStaticGzip from 'express-static-gzip';
 import 'dotenv/config'
 import helmet from 'helmet';
 import path from 'path';
-import fs from 'fs';
 import imagemin from 'imagemin';
 import imageminMozjpeg from 'imagemin-mozjpeg';
 import compression from 'compression';
-import CleanCSS from 'clean-css';
-import UglifyJS from 'uglify-js';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import morgan from 'morgan';
@@ -57,10 +54,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Define file paths
-const cssPath = path.join(__dirname, 'views', 'assets', 'styles', 'style.css');
-const minifiedCSSPath = path.join(__dirname, 'public', 'styles', 'style.min.css');
-const jsPath = path.join(__dirname, 'views', 'assets', 'scripts', 'script.js');
-const minifiedJSPath = path.join(__dirname, 'public', 'scripts', 'script.min.js');
 const inputImagePath = path.join(__dirname, 'views', 'assets', 'images');
 const outputImagePath = path.join(__dirname, 'public', 'images');
 
