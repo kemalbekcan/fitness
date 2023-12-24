@@ -7,6 +7,7 @@
   "scripts": {
     "production": "NODE_ENV=production nodemon app.js",
     "dev": "NODE_ENV=development nodemon app.js & npm run scss",
+    "compile-ejs": "node compile-ejs.js",
     "scss": "sass --no-source-map --watch views/scss/main.scss views/assets/styles/style.css",
     "build-css": "cleancss -o public/styles/style.min.css public/styles/style.css",
     "build-js": "uglifyjs public/scripts/script.js -o public/scripts/script.min.js",
@@ -24,6 +25,7 @@
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-static-gzip": "^2.1.7",
+    "glob": "^10.3.10",
     "helmet": "^7.1.0",
     "imagemin-mozjpeg": "^10.0.0",
     "morgan": "^1.10.0",
