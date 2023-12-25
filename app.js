@@ -32,6 +32,28 @@ app.use(minifyHTML({
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const morganMiddleware = morgan(function (tokens, req, res) {
+    return [
+        '\n\n\n',
+        chalk.hex('#34ace0').bold(tokens.method(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#ffb142').bold(tokens.status(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#ff5252').bold(tokens.url(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#2ed573').bold(tokens['response-time'](req, res) + ' ms'),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#f78fb3').bold('@ ' + tokens.date(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.yellow(tokens['remote-addr'](req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#fffa65').bold('from ' + tokens.referrer(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#1e90ff')(tokens['user-agent'](req, res)),
+        '\n\n\n',
+    ].join(' ');
+});
+
 // NODE_ENV kontrolü
 if (process.env.NODE_ENV === 'production') {
     console.log('Environment is production!');
@@ -56,7 +78,7 @@ if (process.env.NODE_ENV === 'production') {
     console.log(chalk.yellow('Environment is production!'));
     // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
     // Morgan'ı kullanarak günlük bilgisi almak için
-    app.use(morgan('dev'));
+    app.use(morganMiddleware);
 
     // SCSS derleme ve Autoprefixer'ı uygulama için script'i çalıştır
     exec('npm run dev', (error, stdout, stderr) => {
