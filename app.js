@@ -17,15 +17,15 @@ import router from './routes/routes.js';
 const app = express();
 
 app.use(minifyHTML({
-    override:      true,
+    override: true,
     exception_url: false,
     htmlMinifier: {
-        removeComments:            true,
-        collapseWhitespace:        true,
+        removeComments: true,
+        collapseWhitespace: true,
         collapseBooleanAttributes: true,
-        removeAttributeQuotes:     true,
-        removeEmptyAttributes:     true,
-        minifyJS:                  true
+        removeAttributeQuotes: true,
+        removeEmptyAttributes: true,
+        minifyJS: true
     }
 }));
 
@@ -127,11 +127,19 @@ app.get('/robots.txt', (req, res) => {
 });
 
 // EJS şablonlarını bulunduran dizin
-app.set('views', path.join(__dirname, 'views'));
+// EJS şablonlarını bulunduran dizin
+app.set('views', [
+    path.join(__dirname, 'views'),
+    path.join(__dirname, 'widgets')
+]);
 
 app.use(cors());
 app.use(express.json());
 app.set('view engine', 'ejs');
+
+// Widget route'ları
+import navigationWidgetRouter from './widgets/navigation-widget/index.js';
+app.use('/navigation-widget', navigationWidgetRouter);
 
 // Use the router
 app.use(router);
@@ -153,10 +161,16 @@ app.get('/', async (req, res) => {
 
     const tagline = 'No programming concept is complete without a cute animal mascot.';
 
+    const widgets = [
+        { name: 'navigation-widget', route: '../../widgets/navigation-widget', data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] } },
+    ];
+
     res.render('pages/index', {
         head,
         mascots,
         tagline,
+        data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] },
+        widgets,
     });
 });
 

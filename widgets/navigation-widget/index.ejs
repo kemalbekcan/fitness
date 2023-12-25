@@ -1,0 +1,9 @@
+<!-- views/widgets/navigation-widget.ejs -->
+
+<nav class="navigation-widget">
+    <ul>
+        <% navigationData.menuItems.forEach(item => { %>
+            <li><%= item %></li>
+        <% }); %>
+    </ul>
+</nav>

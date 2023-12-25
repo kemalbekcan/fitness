@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 
 <head>
     <%- include('../partials/head'); %>
@@ -24,30 +24,35 @@
             </script>
     </header>
 
-    <main>
-        <div class="jumbotron">
-            <h1>Top Mascots</h1>
-            <p>
-                <%= tagline %>
-            </p>
-            <ul>
-                <% mascots.forEach(function(mascot) { %>
-                    <li>
-                        <strong>
-                            <%= mascot.name %>
-                        </strong>
-                        representing <%= mascot.organization %>, born <%= mascot.birth_year %>
-                    </li>
-                    <% }); %>
-            </ul>
-        </div>
-    </main>
+    <!-- Dinamik olarak widget'ları ekle -->
+    <% widgets.forEach(widget=> { %>
+        <%- include(widget.route + '/index' , { navigationData: data }); %>
+            <% }); %>
 
-    <footer>
-        <%- include('../partials/footer'); %>
-    </footer>
+                <main>
+                    <div class="jumbotron">
+                        <h1>Top Mascots</h1>
+                        <p>
+                            <%= tagline %>
+                        </p>
+                        <ul>
+                            <% mascots.forEach(function(mascot) { %>
+                                <li>
+                                    <strong>
+                                        <%= mascot.name %>
+                                    </strong>
+                                    representing <%= mascot.organization %>, born <%= mascot.birth_year %>
+                                </li>
+                                <% }); %>
+                        </ul>
+                    </div>
+                </main>
 
-    <script async src="/public/scripts/script.min.js" defer></script>
+                <footer>
+                    <%- include('../partials/footer'); %>
+                </footer>
+
+                <script async src="/public/scripts/script.min.js" defer></script>
 </body>
 
 </html>
