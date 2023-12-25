@@ -1,6 +1,7 @@
 import express from 'express';
 import { exec } from 'child_process';
 import expressStaticGzip from 'express-static-gzip';
+import minifyHTML from 'express-minify-html';
 import 'dotenv/config'
 import helmet from 'helmet';
 import path from 'path';
@@ -14,6 +15,19 @@ import chalk from 'chalk';
 import router from './routes/routes.js';
 
 const app = express();
+
+app.use(minifyHTML({
+    override:      true,
+    exception_url: false,
+    htmlMinifier: {
+        removeComments:            true,
+        collapseWhitespace:        true,
+        collapseBooleanAttributes: true,
+        removeAttributeQuotes:     true,
+        removeEmptyAttributes:     true,
+        minifyJS:                  true
+    }
+}));
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -101,7 +115,7 @@ app.set('view engine', 'ejs');
 app.use(router);
 
 // Define routes
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     const head = {
         title: 'Anasayfa',
         description: 'Anasayfa açıklaması',
@@ -114,6 +128,7 @@ app.get('/', (req, res) => {
         { name: 'Tux', organization: 'Linux', birth_year: 1996 },
         { name: 'Moby Dock', organization: 'Docker', birth_year: 2013 },
     ];
+
     const tagline = 'No programming concept is complete without a cute animal mascot.';
 
     res.render('pages/index', {
@@ -141,5 +156,5 @@ app.listen(PORT, () => {
 //     minifyJS();
 //     compressImages();
 // }
-  
+
 
