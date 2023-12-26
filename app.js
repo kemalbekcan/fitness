@@ -197,5 +197,3 @@ app.listen(PORT, () => {
 //     minifyJS();
 //     compressImages();
 // }
-
-
