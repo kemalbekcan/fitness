@@ -55,13 +55,10 @@ const morganMiddleware = morgan(function (tokens, req, res) {
     ].join(' ');
 });
 
-// NODE_ENV kontrolü
 if (process.env.NODE_ENV === 'production') {
     console.log('Environment is production!');
-    // Production ortamında özel işlemler veya yapılandırmalar
     app.use(compression());
 
-    // Apply Helmet middleware with customized CSP for production
     app.use(helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'self'"],
@@ -77,8 +74,6 @@ if (process.env.NODE_ENV === 'production') {
 } else {
     // app.use(compression());
     console.log(chalk.yellow('Environment is production!'));
-    // Development veya başka bir ortamda özel işlemler veya yapılandırmalar
-    // Morgan'ı kullanarak günlük bilgisi almak için
     app.use(morganMiddleware);
 
     // SCSS derleme ve Autoprefixer'ı uygulama için script'i çalıştır
@@ -91,11 +86,9 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-// Define file paths
 const inputImagePath = path.join(__dirname, 'views', 'assets', 'images');
 const outputImagePath = path.join(__dirname, 'public', 'images');
 
-// Function to compress images
 async function compressImages() {
     try {
         await imagemin([`${inputImagePath}/*.{jpg,png}`], {
@@ -108,27 +101,22 @@ async function compressImages() {
     }
 }
 
-// Express-static-gzip middleware'i ekleyin ve yapılandırın
 app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
-    enableBrotli: true,  // Brotli sıkıştırma kullan
-    orderPreference: ['br'],  // Tarayıcının Brotli'yi tercih etmesini sağla
+    enableBrotli: true,
+    orderPreference: ['br'],
     setHeaders: (res, path) => {
-        // Önbellek başlıklarını ayarla
-        res.setHeader('Cache-Control', 'public, max-age=31536000');  // 1 yıl (saniye cinsinden)
-        res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());  // 1 yıl sonra sona erer
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+        res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
         res.setHeader('Pragma', 'public');
-        res.setHeader('Vary', 'Accept-Encoding');  // Tarayıcı sıkıştırma tercihini dikkate al
+        res.setHeader('Vary', 'Accept-Encoding');
     },
 }));
 
-// Serve robots.txt
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
     res.send('User-agent: *\nDisallow: ');
 });
 
-// EJS şablonlarını bulunduran dizin
-// EJS şablonlarını bulunduran dizin
 app.set('views', [
     path.join(__dirname, 'views'),
     path.join(__dirname, 'widgets')
@@ -137,19 +125,15 @@ app.set('views', [
 app.use(cors());
 app.use(express.json());
 
-// Set Templating Engine
 app.use(expressLayouts);
 app.set('layout', './layouts/layout.ejs');
 app.set('view engine', 'ejs');
 
-// Widget route'ları
 import navigationWidgetRouter from './widgets/navigation-widget/index.js';
 app.use('/navigation-widget', navigationWidgetRouter);
 
-// Use the router
 app.use(router);
 
-// Define routes
 app.get('/', async (req, res) => {
     const head = {
         title: 'Anasayfa',
@@ -183,7 +167,6 @@ app.get('/about', (req, res) => {
     res.render('pages/about');
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(chalk.blue(`Server is running on http://localhost:${PORT} 🚀`));
@@ -191,7 +174,6 @@ app.listen(PORT, () => {
     compressImages();
 });
 
-// Call functions conditionally based on environment
 // if (process.env.NODE_ENV === 'production') {
 //     minifyCSS();
 //     minifyJS();
