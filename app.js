@@ -1,4 +1,5 @@
 import express from 'express';
+import expressLayouts from 'express-ejs-layouts';
 import { exec } from 'child_process';
 import expressStaticGzip from 'express-static-gzip';
 import minifyHTML from 'express-minify-html';
@@ -135,6 +136,10 @@ app.set('views', [
 
 app.use(cors());
 app.use(express.json());
+
+// Set Templating Engine
+app.use(expressLayouts);
+app.set('layout', './layouts/layout.ejs');
 app.set('view engine', 'ejs');
 
 // Widget route'ları

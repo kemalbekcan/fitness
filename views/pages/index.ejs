@@ -1,58 +1,23 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!-- Dinamik olarak widget'ları ekle -->
+<% widgets.forEach(widget=> { %>
+    <%- include(widget.route + '/index' , { navigationData: data }); %>
+        <% }); %>
 
-<head>
-    <%- include('../partials/head'); %>
-</head>
-
-<body class="container">
-
-    <header>
-        <%- include('../partials/header'); %>
-
-            <script>
-                // JavaScript kodunu buraya alın
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/public/service-worker.js')
-                        .then((registration) => {
-                            console.log('Service Worker registered with scope:', registration.scope);
-                        })
-                        .catch((error) => {
-                            console.error('Service Worker registration failed:', error);
-                        });
-                }
-            </script>
-    </header>
-
-    <!-- Dinamik olarak widget'ları ekle -->
-    <% widgets.forEach(widget=> { %>
-        <%- include(widget.route + '/index' , { navigationData: data }); %>
-            <% }); %>
-
-                <main>
-                    <div class="jumbotron">
-                        <h1>Top Mascots</h1>
-                        <p>
-                            <%= tagline %>
-                        </p>
-                        <ul>
-                            <% mascots.forEach(function(mascot) { %>
-                                <li>
-                                    <strong>
-                                        <%= mascot.name %>
-                                    </strong>
-                                    representing <%= mascot.organization %>, born <%= mascot.birth_year %>
-                                </li>
-                                <% }); %>
-                        </ul>
-                    </div>
-                </main>
-
-                <footer>
-                    <%- include('../partials/footer'); %>
-                </footer>
-
-                <script async src="/public/scripts/script.min.js" defer></script>
-</body>
-
-</html>
+            <main>
+                <div class="jumbotron">
+                    <h1>Top Mascots</h1>
+                    <p>
+                        <%= tagline %>
+                    </p>
+                    <ul>
+                        <% mascots.forEach(function(mascot) { %>
+                            <li>
+                                <strong>
+                                    <%= mascot.name %>
+                                </strong>
+                                representing <%= mascot.organization %>, born <%= mascot.birth_year %>
+                            </li>
+                            <% }); %>
+                    </ul>
+                </div>
+            </main>
