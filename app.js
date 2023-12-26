@@ -1,9 +1,10 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import expressLayouts from 'express-ejs-layouts';
 import { exec } from 'child_process';
 import expressStaticGzip from 'express-static-gzip';
 import minifyHTML from 'express-minify-html';
-import 'dotenv/config'
+import 'dotenv/config';
 import helmet from 'helmet';
 import path from 'path';
 import imagemin from 'imagemin';
@@ -54,6 +55,15 @@ const morganMiddleware = morgan(function (tokens, req, res) {
         '\n\n\n',
     ].join(' ');
 });
+
+// Rate limiter'ı oluşturun
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 dakika içinde
+    max: 100, // 100 istekle sınırla
+    message: 'Too many requests from this IP, please try again later.',
+});
+
+app.use('/api/', limiter);
 
 if (process.env.NODE_ENV === 'production') {
     app.use(compression());
