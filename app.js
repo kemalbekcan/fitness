@@ -56,7 +56,6 @@ const morganMiddleware = morgan(function (tokens, req, res) {
 });
 
 if (process.env.NODE_ENV === 'production') {
-    console.log('Environment is production!');
     app.use(compression());
 
     app.use(helmet.contentSecurityPolicy({
@@ -72,7 +71,6 @@ if (process.env.NODE_ENV === 'production') {
     // Resimleri sıkıştır
     // await compressImages();
 } else {
-    // app.use(compression());
     console.log(chalk.yellow('Environment is production!'));
     app.use(morganMiddleware);
 
