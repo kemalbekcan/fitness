@@ -56,10 +56,9 @@ const morganMiddleware = morgan(function (tokens, req, res) {
     ].join(' ');
 });
 
-// Rate limiter'ı oluşturun
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 dakika içinde
-    max: 100, // 100 istekle sınırla
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: 'Too many requests from this IP, please try again later.',
 });
 
