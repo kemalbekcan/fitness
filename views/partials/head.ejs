@@ -12,11 +12,14 @@
 <link rel="icon" href="/public/images/favicon.ico" type="image/x-icon">
 
 <!-- Lazy loading CSS -->
-<link id="lazy-css" rel="stylesheet" href="/public/styles/style.min.css" media="print" onload="this.media='all'">
-<link id="lazy-css" rel="stylesheet" href="/public/dist/css/widget1.bundle.css" media="print" onload="this.media='all'">
+<% cssFiles.forEach(cssFile => { %>
+    <link id="lazy-css" rel="stylesheet" href="<%= cssFile %>" media="print" onload="this.media='all'">
+<% }); %>
+
 <noscript>
-    <link rel="stylesheet" href="/public/styles/style.min.css">
-    <link rel="stylesheet" href="/public/dist/css/widget1.bundle.css">
+    <% cssFiles.forEach(cssFile => { %>
+        <link rel="stylesheet" href="<%= cssFile %>">
+    <% }); %>
 </noscript>
 
 <!-- Twitter -->
@@ -32,7 +35,7 @@
 </style>
 
 <!-- JavaScript ile lazy loading -->
-<script>
+<script defer>
     document.addEventListener('DOMContentLoaded', function () {
         var lazyStyle = document.getElementById('lazy-css');
         lazyStyle.removeAttribute('onload');

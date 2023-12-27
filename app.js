@@ -142,6 +142,17 @@ app.use('/navigation-widget', navigationWidgetRouter);
 app.use(router);
 
 app.get('/', async (req, res) => {
+    
+    const cssFiles = [
+        '/public/styles/style.min.css',
+        '/public/dist/css/widget1.bundle.css',
+    ];
+
+    const scriptFiles = [
+        '/public/scripts/script.min.js',
+        '/public/dist/js/widget1.bundle.js',
+    ];
+
     const head = {
         title: 'Anasayfa',
         description: 'Anasayfa açıklaması',
@@ -167,6 +178,8 @@ app.get('/', async (req, res) => {
         tagline,
         data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] },
         widgets,
+        cssFiles,
+        scriptFiles
     });
 });
 
