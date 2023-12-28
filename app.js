@@ -112,12 +112,16 @@ app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
     enableBrotli: true,
     orderPreference: ['br'],
     setHeaders: (res, path) => {
+        res.setHeader('Accept-Encoding', 'gzip, br');
         res.setHeader('Cache-Control', 'public, max-age=31536000');
         res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
         res.setHeader('Pragma', 'public');
         res.setHeader('Vary', 'Accept-Encoding');
     },
 }));
+
+// Bu kısım eklenecek
+app.use('/manifest.json', express.static(path.join(__dirname, 'manifest.json')));
 
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
@@ -172,6 +176,8 @@ app.get('/', async (req, res) => {
         { name: 'navigation-widget', route: '../../widgets/navigation-widget', data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] } },
     ];
 
+    const manifestFile = '/manifest.json';
+
     res.render('pages/index', {
         head,
         mascots,
@@ -179,7 +185,8 @@ app.get('/', async (req, res) => {
         data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] },
         widgets,
         cssFiles,
-        scriptFiles
+        scriptFiles,
+        manifestFile
     });
 });
 

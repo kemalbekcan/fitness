@@ -9,6 +9,8 @@
 <meta name="og:description" content="<%= head.description %>">
 <meta name="description" content="<%= head.description %>">
 <meta name="keywords" content="<%= head.keywords %>">
+<meta name="og:keywords" content="<%= head.keywords %>">
+<meta name="theme-color" content="#000000">
 <link rel="icon" href="/public/images/favicon.ico" type="image/x-icon">
 
 <!-- Lazy loading CSS -->
@@ -26,7 +28,9 @@
 <!-- Facebook -->
 <!-- Google -->
 
-<link rel="canonical" href="http://localhost:3000/">
+<link rel="canonical" href="http://localhost:3000">
+
+<link rel="manifest" href="<%= manifestFile %>">
 
 <style>
     body {
