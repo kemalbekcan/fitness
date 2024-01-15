@@ -78,13 +78,13 @@ if (process.env.NODE_ENV === 'production') {
     // await minifyCSS();
     // await minifyJS();
     // Resimleri sıkıştır
-    // await compressImages();
+    await compressImages();
 } else {
-    console.log(chalk.yellow('Environment is production!'));
+    console.log(chalk.yellow('Environment is dev!'));
     app.use(morganMiddleware);
 
     // SCSS derleme ve Autoprefixer'ı uygulama için script'i çalıştır
-    exec('npm run dev', (error, stdout, stderr) => {
+    exec('npm run build-style', (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${error}`);
             return;
@@ -120,7 +120,6 @@ app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
     },
 }));
 
-// Bu kısım eklenecek
 app.use('/manifest.json', express.static(path.join(__dirname, 'manifest.json')));
 
 app.get('/robots.txt', (req, res) => {
@@ -146,7 +145,6 @@ app.use('/navigation-widget', navigationWidgetRouter);
 app.use(router);
 
 app.get('/', async (req, res) => {
-    
     const cssFiles = [
         '/public/styles/style.min.css',
         '/public/dist/css/widget1.bundle.css',
@@ -197,12 +195,4 @@ app.get('/about', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(chalk.blue(`Server is running on http://localhost:${PORT} 🚀`));
-
-    compressImages();
 });
-
-// if (process.env.NODE_ENV === 'production') {
-//     minifyCSS();
-//     minifyJS();
-//     compressImages();
-// }

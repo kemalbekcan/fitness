@@ -1,1 +1,1 @@
-.example{display:grid;transition:all .5s;user-select:none;background:linear-gradient(to bottom, white, black)}.container{display:grid;transition:all .5s}
+@import"./base/reset.css";@import"./base/normalize.css";.navigation{border:1px solid red}*{box-sizing:border-box}

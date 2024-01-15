@@ -26,6 +26,11 @@ sass.render(
                 .then((result) => {
                     const minifiedCSSContent = new CleanCSS().minify(result.css).styles;
                     fs.writeFileSync(outputFilePath, minifiedCSSContent);
+                    // Minify JS
+                    // const jsContent = fs.readFileSync(jsFilePath, 'utf8');
+                    // const minifiedJSContent = UglifyJS.minify(jsContent).code;
+                    // fs.writeFileSync(minifiedJSPath, minifiedJSContent);
+                    // console.log(chalk.green('JS minified successfully!'));
                     console.log(chalk.green('SCSS compiled, Autoprefixer applied, and CSS minified successfully!'));
                 })
                 .catch((error) => {
@@ -36,9 +41,3 @@ sass.render(
         }
     }
 );
-
-// Minify JS
-const jsContent = fs.readFileSync(jsFilePath, 'utf8');
-const minifiedJSContent = UglifyJS.minify(jsContent).code;
-fs.writeFileSync(minifiedJSPath, minifiedJSContent);
-console.log(chalk.green('JS minified successfully!'));
