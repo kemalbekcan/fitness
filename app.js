@@ -145,9 +145,9 @@ app.use('/navigation-widget', navigationWidgetRouter);
 app.use(router);
 
 // Vite üretim dosyalarını sağlamak için
-app.use('/admin', express.static(path.join(__dirname, './admin/dist')));
+app.use('/admin', express.static(path.join(__dirname, './dist')));
 
-app.use('/assets', express.static(path.join(__dirname, './admin/dist/assets'), {
+app.use('/assets', express.static(path.join(__dirname, './dist/assets'), {
     setHeaders: (res, path, stat) => {
         if (path.endsWith('.css')) {
             res.setHeader('Content-Type', 'text/css');
