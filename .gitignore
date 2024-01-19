@@ -5,3 +5,8 @@ package-lock.json
 yarn.lock
 
 .env
+
+fitness.iml
+modules.xml
+vcs.xml
+Project_Default.xml

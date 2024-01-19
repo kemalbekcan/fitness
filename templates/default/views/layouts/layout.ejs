@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+        <%- include('../partials/head'); %>
+    </head>
+<body>
+
+    <div class="wrapper">
+        <%- include('../partials/header.ejs') %>
+        <main><%- body %></main>
+        <%- include('../partials/footer.ejs') %>
+    </div>
+
+    <% scriptFiles.forEach(scriptFile => { %>
+        <script async src="<%= scriptFile %>" defer></script>
+    <% }); %>
+</body>
+</html>

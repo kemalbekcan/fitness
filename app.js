@@ -15,6 +15,7 @@ import { fileURLToPath } from 'url';
 import morgan from 'morgan';
 import chalk from 'chalk';
 import router from './routes/routes.js';
+import fs from 'fs';
 
 const app = express();
 
@@ -35,25 +36,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const morganMiddleware = morgan(function (tokens, req, res) {
-    return [
-        '\n\n\n',
-        chalk.hex('#34ace0').bold(tokens.method(req, res)),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.hex('#ffb142').bold(tokens.status(req, res)),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.hex('#ff5252').bold(tokens.url(req, res)),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.hex('#2ed573').bold(tokens['response-time'](req, res) + ' ms'),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.hex('#f78fb3').bold('@ ' + tokens.date(req, res)),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.yellow(tokens['remote-addr'](req, res)),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.hex('#fffa65').bold('from ' + tokens.referrer(req, res)),
-        chalk.hex('#ff4757').bold('--> '),
-        chalk.hex('#1e90ff')(tokens['user-agent'](req, res)),
-        '\n\n\n',
-    ].join(' ');
+    // return [
+    //     '\n\n\n',
+    //     chalk.hex('#34ace0').bold(tokens.method(req, res)),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.hex('#ffb142').bold(tokens.status(req, res)),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.hex('#ff5252').bold(tokens.url(req, res)),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.hex('#2ed573').bold(tokens['response-time'](req, res) + ' ms'),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.hex('#f78fb3').bold('@ ' + tokens.date(req, res)),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.yellow(tokens['remote-addr'](req, res)),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.hex('#fffa65').bold('from ' + tokens.referrer(req, res)),
+    //     chalk.hex('#ff4757').bold('--> '),
+    //     chalk.hex('#1e90ff')(tokens['user-agent'](req, res)),
+    //     '\n\n\n',
+    // ].join(' ');
 });
 
 const limiter = rateLimit({
@@ -128,7 +129,7 @@ app.get('/robots.txt', (req, res) => {
 });
 
 app.set('views', [
-    path.join(__dirname, 'views'),
+    path.join(__dirname, 'templates'),
     path.join(__dirname, 'widgets')
 ]);
 
@@ -136,7 +137,17 @@ app.use(cors());
 app.use(express.json());
 
 app.use(expressLayouts);
-app.set('layout', './layouts/layout.ejs');
+
+const templates = ['default', 'vive'];
+
+const currentTemplate = templates[0]; // backend'den gelecek
+
+fs.readdir('./templates', function (err, files) {
+    const templateName = files.find((template) => template === currentTemplate);
+
+    app.set('layout', `./${templateName}/views/layouts/layout.ejs`);
+});
+
 app.set('view engine', 'ejs');
 
 import navigationWidgetRouter from './widgets/navigation-widget/index.js';
@@ -182,20 +193,29 @@ app.get('/', async (req, res) => {
     const tagline = 'No programming concept is complete without a cute animal mascot.';
 
     const widgets = [
-        { name: 'navigation-widget', route: '../../widgets/navigation-widget', data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] } },
+        { name: 'navigation-widget', route: '../widgets/navigation-widget', data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] } },
     ];
 
     const manifestFile = '/manifest.json';
 
-    res.render('pages/index', {
-        head,
-        mascots,
-        tagline,
-        data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] },
-        widgets,
-        cssFiles,
-        scriptFiles,
-        manifestFile
+    const templates = ['default', 'vive'];
+
+    const currentTemplate = templates[0]; // backend'den gelecek
+
+    fs.readdir('./templates', function (err, files) {
+        const templateName = files.find((template) => template === currentTemplate);
+
+        res.render(`${templateName}/views/pages/index`, {
+            head,
+            mascots,
+            tagline,
+            data: { menuItems: ['Anasayfa', 'Hakkında', 'İletişim'] },
+            widgets,
+            cssFiles,
+            scriptFiles,
+            manifestFile,
+            currentTemplate
+        });
     });
 });
 
