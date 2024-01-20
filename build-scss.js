@@ -8,9 +8,9 @@ import * as sass from 'sass';
 import CleanCSS from 'clean-css';
 import UglifyJS from 'uglify-js';
 
-const inputFilePath = './views/scss/main.scss';
+const inputFilePath = './templates/default/views/scss/main.scss';
 const outputFilePath = './public/styles/style.min.css';
-const jsFilePath = './views/assets/scripts/script.js';
+const jsFilePath = './templates/defaultviews/assets/scripts/script.js';
 const minifiedJSPath = './public/scripts/script.min.js';
 
 // Compile SCSS, apply Autoprefixer, and minify CSS
