@@ -225,6 +225,7 @@ const server = http.createServer(app);
 const io = new SocketIOServer(server);
 
 const scssDirPath = './templates/default/views/scss';
+const jsDirPath = './templates/default/views/assets';
 
 // Chokidar instance'ı oluşturun
 const watcher = chokidar.watch(`${scssDirPath}/**/*.scss`, {
@@ -232,9 +233,13 @@ const watcher = chokidar.watch(`${scssDirPath}/**/*.scss`, {
     persistent: true,
 });
 
+const jsWatcher = chokidar.watch(`${jsDirPath}/**/*.js`, {
+    ignored: /(^|[\/\\])\../, // Gizli dosyaları göz ardı et
+    persistent: true,
+});
+
 watcher.on('change', (path) => {
     console.log(`SCSS file ${path} has been changed`);
-    // Burada SCSS dosyalarını derlemek gibi işlemleri gerçekleştirebilirsiniz
 
     exec('npm run build-style', (error, stdout, stderr) => {
         if (error) {
@@ -247,9 +252,27 @@ watcher.on('change', (path) => {
     });
 });
 
-// 'ready' event'i ile başlangıçta dizindeki dosyaların listesine ulaşabilirsiniz
+jsWatcher.on('change', (path) => {
+    console.log('changed', path);
+    console.log(`SCSS file ${path} has been changed`);
+
+    exec('npm run build-js', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error}`);
+            return;
+        }
+        console.log(`SCSS and Autoprefixer output: ${stdout}`);
+
+        io.emit('reload');
+    });
+});
+
 watcher.on('ready', () => {
-    console.log('Initial scan complete. Ready for changes.');
+    console.log(chalk.bgGreen('Initial scss scan complete. Ready for changes.'));
+});
+
+jsWatcher.on('ready', () => {
+    console.log(chalk.bgGreen('Initial javascript scan complete. Ready for changes.'));
 });
 
 app.post('/reload', (req, res) => {
@@ -262,14 +285,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     compressImages();
 
-    exec('npm run build-js', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error}`);
-            return;
-        }
-        console.log(chalk.green(`SCSS and Autoprefixer output: ${stdout}`));
-
-
-    });
     console.log(chalk.blue(`Server is running on http://localhost:${PORT} 🚀`));
 });
