@@ -15,6 +15,9 @@ import { fileURLToPath } from 'url';
 import morgan from 'morgan';
 import chalk from 'chalk';
 import router from './routes/routes.js';
+import chokidar from 'chokidar'
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io'
 import fs from 'fs';
 
 const app = express();
@@ -36,25 +39,25 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const morganMiddleware = morgan(function (tokens, req, res) {
-    // return [
-    //     '\n\n\n',
-    //     chalk.hex('#34ace0').bold(tokens.method(req, res)),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.hex('#ffb142').bold(tokens.status(req, res)),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.hex('#ff5252').bold(tokens.url(req, res)),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.hex('#2ed573').bold(tokens['response-time'](req, res) + ' ms'),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.hex('#f78fb3').bold('@ ' + tokens.date(req, res)),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.yellow(tokens['remote-addr'](req, res)),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.hex('#fffa65').bold('from ' + tokens.referrer(req, res)),
-    //     chalk.hex('#ff4757').bold('--> '),
-    //     chalk.hex('#1e90ff')(tokens['user-agent'](req, res)),
-    //     '\n\n\n',
-    // ].join(' ');
+    return [
+        '\n\n\n',
+        chalk.hex('#34ace0').bold(tokens.method(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#ffb142').bold(tokens.status(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#ff5252').bold(tokens.url(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#2ed573').bold(tokens['response-time'](req, res) + ' ms'),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#f78fb3').bold('@ ' + tokens.date(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.yellow(tokens['remote-addr'](req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#fffa65').bold('from ' + tokens.referrer(req, res)),
+        chalk.hex('#ff4757').bold('--> '),
+        chalk.hex('#1e90ff')(tokens['user-agent'](req, res)),
+        '\n\n\n',
+    ].join(' ');
 });
 
 const limiter = rateLimit({
@@ -70,31 +73,38 @@ if (process.env.NODE_ENV === 'production') {
 
     app.use(helmet.contentSecurityPolicy({
         directives: {
-            defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", 'http://localhost:3000'],
+            defaultSrc: ["'self'", "http://localhost:3000"],
+            scriptSrc: ["'self'", "https://cdn.socket.io"],
+            scriptSrcElem: ["'self'", "https://cdn.socket.io", "'unsafe-inline'", "'unsafe-eval'"],
+            scriptSrcAttr: ["'self'", "https://cdn.socket.io", "'unsafe-inline'", "'unsafe-eval'"],
         },
     }));
 
-    // CSS ve JS'yi minify et
-    // await minifyCSS();
-    // await minifyJS();
-    // Resimleri sıkıştır
-    await compressImages();
+    app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
+        enableBrotli: true,
+        orderPreference: ['br'],
+        setHeaders: (res, path) => {
+            res.setHeader('Accept-Encoding', 'gzip, br');
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+            res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
+            res.setHeader('Pragma', 'public');
+            res.setHeader('Vary', 'Accept-Encoding');
+        },
+    }));
 } else {
+    app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
+        enableBrotli: false,
+
+        setHeaders: (res, path) => {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        },
+    }));
+
     console.log(chalk.yellow('Environment is dev!'));
     app.use(morganMiddleware);
-
-    // SCSS derleme ve Autoprefixer'ı uygulama için script'i çalıştır
-    exec('npm run build-style', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error: ${error}`);
-            return;
-        }
-        console.log(`SCSS and Autoprefixer output: ${stdout}`);
-    });
 }
 
-const inputImagePath = path.join(__dirname, 'views', 'assets', 'images');
+const inputImagePath = path.join(__dirname, 'templates', 'default', 'views', 'assets', 'images');
 const outputImagePath = path.join(__dirname, 'public', 'images');
 
 async function compressImages() {
@@ -108,18 +118,6 @@ async function compressImages() {
         console.log(chalk.red('Error compressing images:', error));
     }
 }
-
-app.use('/public', expressStaticGzip(path.join(__dirname, 'public'), {
-    enableBrotli: true,
-    orderPreference: ['br'],
-    setHeaders: (res, path) => {
-        res.setHeader('Accept-Encoding', 'gzip, br');
-        res.setHeader('Cache-Control', 'public, max-age=31536000');
-        res.setHeader('Expires', new Date(Date.now() + 31536000000).toUTCString());
-        res.setHeader('Pragma', 'public');
-        res.setHeader('Vary', 'Accept-Encoding');
-    },
-}));
 
 app.use('/manifest.json', express.static(path.join(__dirname, 'manifest.json')));
 
@@ -223,7 +221,55 @@ app.get('/about', (req, res) => {
     res.render('pages/about');
 });
 
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
+
+const scssDirPath = './templates/default/views/scss';
+
+// Chokidar instance'ı oluşturun
+const watcher = chokidar.watch(`${scssDirPath}/**/*.scss`, {
+    ignored: /(^|[\/\\])\../, // Gizli dosyaları göz ardı et
+    persistent: true,
+});
+
+watcher.on('change', (path) => {
+    console.log(`SCSS file ${path} has been changed`);
+    // Burada SCSS dosyalarını derlemek gibi işlemleri gerçekleştirebilirsiniz
+
+    exec('npm run build-style', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error}`);
+            return;
+        }
+        console.log(`SCSS and Autoprefixer output: ${stdout}`);
+
+        io.emit('reload');
+    });
+});
+
+// 'ready' event'i ile başlangıçta dizindeki dosyaların listesine ulaşabilirsiniz
+watcher.on('ready', () => {
+    console.log('Initial scan complete. Ready for changes.');
+});
+
+app.post('/reload', (req, res) => {
+    console.log('reload')
+    io.emit('reload');
+    res.send('Page reloading...');
+});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
+    compressImages();
+
+    exec('npm run build-js', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error}`);
+            return;
+        }
+        console.log(chalk.green(`SCSS and Autoprefixer output: ${stdout}`));
+
+
+    });
     console.log(chalk.blue(`Server is running on http://localhost:${PORT} 🚀`));
 });

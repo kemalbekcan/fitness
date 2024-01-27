@@ -1,7 +1,8 @@
 // postcss.config.js
 
 export default {
-    plugins: {
-        autoprefixer: {},
-    },
+    plugins: [
+        require('autoprefixer'),
+        require('postcss-nested')
+      ]
 };

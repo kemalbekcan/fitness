@@ -1,0 +1,17 @@
+@import url('./base/reset.css');
+@import url('./base/normalize.css');
+
+// Path: views/scss/_variables.scss
+@import './layout/header';
+
+* {
+    box-sizing: border-box;
+}
+
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}

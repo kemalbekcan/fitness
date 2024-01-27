@@ -11,18 +11,10 @@
         <%- include('../partials/footer.ejs') %>
     </div>
 
+    <script src="/templates/default/views/components/button/index.js" type="text/html"></script>
+
     <% scriptFiles.forEach(scriptFile => { %>
         <script async src="<%= scriptFile %>" defer></script>
     <% }); %>
-
-    <script type="module" nonce="RANDOM_NONCE">
-        import { io } from "https://cdn.socket.io/4.7.4/socket.io.esm.min.js";
-        const socket = io();
-
-        socket.on('reload', () => {
-            console.log('Page reloading...');
-            window.location.reload(true);
-        });
-    </script>
 </body>
 </html>
